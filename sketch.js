@@ -8,7 +8,9 @@ var keyStates = [0, 0, 0, 0, 0, 0];
 var keys_start = [];
 var keys_end = [];
 var OuterCircleRadius = 340;
+var stringHeight = 760;
 var key;
+var vibration;
 
 let mySound;
 function preload() {
@@ -28,9 +30,11 @@ function setup() {
   strokeWeight(3);
   // Create synth voice
   synth = new p5.PolySynth();
+  vibration=true;
 }
 
 function draw() {
+  //draw circles in the middle
   background(backgroundColor);
   fill('#191970');
   circle(300, 2*height/3, OuterCircleRadius);
@@ -55,7 +59,8 @@ function draw() {
   
   fill(40);
   noStroke();
-    
+  
+  //draw texts
   textSize(20);
   fill('white');
   text('BECOME\nACOUSTIC', 100, 30);
@@ -68,6 +73,7 @@ function draw() {
   fill('white');
   text('LEAP DAY', 100, 750);
   
+  //draw black thing below strings
   push();
   beginShape();
   fill('black')
@@ -78,28 +84,12 @@ function draw() {
   endShape()
   pop();
   
-  var keyWidth = 5;
-  for (var i = 0; i < keyStates.length; i++) {
-    var keyColor;
-    var x_translation = 1
-    var space = 25
-    keyColor = color('white');
-    fill(keyColor);
-    x = 220 + i * keyWidth + space * i
-    keys_start.push(x);
-    keys_end.push(x+keyWidth);
-    if (sounds[i].isPlaying() && i == key){
-      push();
-      translate(x_translation, 0);
-      rect(x+x_translation, 0, keyWidth, 750);
-      pop();
-    }else{
-    rect(x, 0, keyWidth, 750);
-    }
+  //draw strings
+  strings();
+  
+  //draw white thing below strings
+  rect(200, 750, 195, 10, 20);
     
-    rect(200, 750, 195, 10, 20);
-    
-  }
 }
 
 function mouseClicked() {
@@ -128,4 +118,39 @@ function mouseClicked() {
     sounds[key].play()
   }
   
+
+}
+
+
+function strings(){
+  var stringWidth = 5;
+  for (var i = 0; i < keyStates.length; i++) {
+    var keyColor;
+    var x_translation = 1
+    var space = 25
+    var string_state = 0
+    fill('white');
+    x = 220 + i * stringWidth + space * i
+    if (sounds[i].isPlaying() && i == key){
+      push();
+	  //translate(random(-2,0),random(-2,0));
+      
+      var amount = 500;
+      var frequency = random(1.0)/30;
+      var offset = random(5);
+      
+      beginShape();
+      vertex(x, stringHeight);
+      for (var c=1; c < amount; c++) {
+         var sinoffset = sin(frequency*c);
+         var sinY = c*(width/amount);
+         var sinX = x + (sinoffset*offset);
+         bezierVertex(sinX,sinY,sinX,sinY-1,sinX,sinY);
+       }
+      endShape();
+      pop();
+    }else{
+    rect(x, 0, stringWidth, stringHeight);
+    }
+  }
 }
